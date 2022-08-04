@@ -1,6 +1,7 @@
+require("dotenv").config();
+const port = process.env.port || 5000;
 const http = require("http");
 const app = require("./app");
-const port = process.env.port || 5000;
 
 // CREATE SERVER HTTP
 app.set("port", port);

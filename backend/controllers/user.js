@@ -1,45 +1,38 @@
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
-
 const User = require("../models/User");
 
-exports.signup = (req, res, next) => {
-  bcrypt
-    .hash(req.body.password, 10)
-    .then((hash) => {
-      const user = new User({
-        email: req.body.email,
-        password: hash,
-      });
-      user
-        .save()
-        .then(() => res.status(201).json({ message: "Utilisateur créé !" }))
-        .catch((error) => res.status(400).json({ error }));
-    })
-    .catch((error) => res.status(500).json({ error }));
+const createToken = (id) => {
+  return jwt.sign({ id }, process.env.SECRET, { expiresIn: "5min" });
 };
 
-exports.login = (req, res, next) => {
-  User.findOne({ email: req.body.email })
-    .then((user) => {
-      if (!user) {
-        return res.status(401).json({ error: "Utilisateur non trouvé !" });
-      }
-      bcrypt
-        .compare(req.body.password, user.password)
-        .then((valid) => {
-          if (!valid) {
-            return res.status(401).json({ error: "Mot de passe incorrect !" });
-          }
-          res.status(200).json({
-            userId: user._id,
-            token: jwt.sign({ userId: user._id }, process.env.TOKEN_SECRET, {
-              expiresIn: "24h",
-            }),
-          });
-        })
-        .catch((error) => res.status(501).json({ error }));
-    })
-    .catch((error) => res.status(500).json({ error }));
+exports.signup = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.signupUser(email, password);
+
+    const token = createToken(user._id);
+
+    return res
+      .status(200)
+      .json({ email, token, message: "Utilisateur créé !" });
+  } catch (error) {
+    return res.status(400).json({ error: error.message }); // throw new Error(error.message)
+  }
+};
+
+exports.login = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.loginUser(email, password);
+
+    const token = createToken(user._id);
+
+    return res
+      .status(200)
+      .json({ email, token, message: "Utilisateur connecté !" });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
 };
