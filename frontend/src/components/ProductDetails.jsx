@@ -6,25 +6,33 @@ import { useAuthContext } from "../hooks/useAuthContext";
 
 const ProductDetails = ({ product }) => {
   const { _id, name, image_url, list_price, brand, category } = product;
+  const baseUrl = process.env.REACT_APP_SERVER_URL;
 
   // context
-  const { dispatch } = useProductsContext();
+  const { dispatchProducts } = useProductsContext();
   const { user } = useAuthContext();
 
-  const handleClick = async () => {
+  const handleDelete = async () => {
     if (!user) return;
 
-    const res = await fetch("/api/products/" + _id, {
-      method: "DELETE",
-    });
-    const data = await res.json();
-
-    if (res.ok) {
-      // console.log(data);
-      dispatch({ type: "DELETE_PRODUCT", payload: data.product });
+    let token;
+    if (typeof user === "object") {
+      token = user.token;
     } else {
-      // error global state
+      token = JSON.parse(user).token;
     }
+
+    try {
+      const res = await fetch(baseUrl + "/api/products/" + _id, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        dispatchProducts({ type: "DELETE_PRODUCT", payload: data.product });
+      }
+    } catch (err) {}
   };
   return (
     <div className="product-details">
@@ -34,7 +42,7 @@ const ProductDetails = ({ product }) => {
         <p>{list_price} $</p>
         <p>Brand: {brand}</p>
         <p>Category: {category}</p>
-        <span onClick={handleClick}>Delete</span>
+        <span onClick={handleDelete}>Delete</span>
       </div>
     </div>
   );

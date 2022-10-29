@@ -9,7 +9,7 @@ const userSchema = Schema({
 
 // static signup method
 userSchema.statics.signupUser = async function (email, password) {
-  if (!email || !password) throw Error("All fileds must be fiiled.");
+  if (!email || !password) throw Error("All fields must be filled.");
 
   if (!validator.isEmail(email)) throw Error("Email is not valid.");
 
@@ -17,6 +17,7 @@ userSchema.statics.signupUser = async function (email, password) {
     throw Error("Password is not strong enough.");
 
   const exists = await this.findOne({ email });
+  console.log("this", this);
   if (exists) throw Error("Email already in use.");
 
   const hash = await bcrypt.hash(password, 10);
@@ -26,7 +27,7 @@ userSchema.statics.signupUser = async function (email, password) {
 };
 
 userSchema.statics.loginUser = async function (email, password) {
-  if (!email || !password) throw Error("All fileds must be fiiled.");
+  if (!email || !password) throw Error("All fields must be filled.");
 
   const user = await this.findOne({ email });
   if (!user) throw Error("Incorrect email");

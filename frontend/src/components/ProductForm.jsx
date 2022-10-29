@@ -14,10 +14,10 @@ const ProductForm = () => {
   const [emptyFields, setEmptyFields] = useState([]);
 
   // context
-  const { dispatch } = useProductsContext();
+  const { dispatchProducts } = useProductsContext();
   const { user } = useAuthContext();
 
-  const baseUrl = "http://localhost:5000";
+  const baseUrl = process.env.REACT_APP_SERVER_URL;
 
   const clearError = () => {
     setTimeout(() => {
@@ -47,9 +47,14 @@ const ProductForm = () => {
       return;
     }
 
-    const { token } = JSON.parse(user);
+    let token;
+    if (typeof user === "object") {
+      token = user.token;
+    } else {
+      token = JSON.parse(user).token;
+    }
+
     const product = { name, list_price: price, brand, category };
-    // console.log("product", product);
 
     const res = await fetch(baseUrl + "/api/products", {
       method: "POST",
@@ -59,17 +64,15 @@ const ProductForm = () => {
         Authorization: `Bearer ${token}`,
       },
     });
-    const { ok } = res;
     const data = await res.json();
-    // console.log(data);
 
-    if (!ok) {
+    if (!res.ok) {
       setEmptyFields(data.emptyFields);
       setError(data.error);
       clearError();
     }
 
-    dispatch({ type: "CREATE_PRODUCT", payload: data.product });
+    dispatchProducts({ type: "CREATE_PRODUCT", payload: data.product });
     setMessage(data.message);
     clearSuccess();
   };

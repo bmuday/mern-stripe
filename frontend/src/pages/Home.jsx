@@ -9,28 +9,35 @@ import ProductDetails from "../components/ProductDetails";
 import ProductForm from "../components/ProductForm";
 
 const Home = () => {
-  // const [products, setProducts] = useState([]);
-  const { products, dispatch } = useProductsContext();
-  const { user } = useAuthContext();
-  const baseUrl = "http://localhost:5000";
+  const { products, dispatchProducts } = useProductsContext();
+  const { user, dispatchAuth } = useAuthContext();
+  const baseUrl = process.env.REACT_APP_SERVER_URL;
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const { token } = JSON.parse(user);
-      console.log("token", token);
+      if (!user) return;
+
+      let token;
+      if (typeof user === "object") {
+        token = user.token;
+      } else {
+        token = JSON.parse(user).token;
+      }
+
       const res = await fetch(baseUrl + "/api/products", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
-
       if (res.ok) {
-        // console.log(data);
-        dispatch({ type: "GET_PRODUCTS", payload: data });
+        const data = await res.json();
+        dispatchProducts({ type: "GET_PRODUCTS", payload: data });
+      }
+      if (res.status === 401) {
+        dispatchAuth({ type: "LOGOUT" });
       }
     };
 
     fetchProducts();
-  }, [dispatch, user]);
+  }, [dispatchProducts, dispatchAuth, user, baseUrl]);
   return (
     <div className="home">
       <div className="products">

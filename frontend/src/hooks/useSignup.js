@@ -7,9 +7,9 @@ export const useSignup = () => {
   const [message, setMessage] = useState(null);
 
   // context action
-  const { dispatch } = useAuthContext();
+  const { dispatchAuth } = useAuthContext();
 
-  const baseUrl = "http://localhost:5000";
+  const baseUrl = process.env.REACT_APP_SERVER_URL;
 
   const signup = async (email, password) => {
     setIsLoading(true);
@@ -35,7 +35,7 @@ export const useSignup = () => {
     localStorage.setItem("user", JSON.stringify(data));
 
     // update the auth context
-    dispatch({ type: "LOGIN/SIGNUP", payload: data });
+    dispatchAuth({ type: "LOGIN/SIGNUP", payload: data });
 
     setIsLoading(false);
   };

@@ -8,18 +8,14 @@ module.exports = async (req, res, next) => {
   }
 
   const token = authorization.split(" ")[1];
-  // console.log("token", token);
 
   try {
     // decoded token
-    const { id } = jwt.verify(token, process.env.SECRET);
-    // console.log("id", id);
+    const { id } = jwt.verify(token, process.env.SECRET_KEY);
     // select only user id(security purpose)
     req.user = await User.findOne({ _id: id });
-    // console.log("req", req.user);
     next();
   } catch (error) {
-    console.log(error);
     res.status(401).json({
       error: "Request is not authorized! Please log in.",
     });

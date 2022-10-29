@@ -14,7 +14,6 @@ import { useAuthContext } from "./hooks/useAuthContext";
 
 const App = () => {
   const { user } = useAuthContext();
-  console.log(user);
 
   return (
     <div className="App">

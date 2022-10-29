@@ -17,7 +17,6 @@ exports.getAllProducts = async (req, res) => {
 };
 
 exports.getProduct = async (req, res) => {
-  const userId = req.user._id;
   const { id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -65,7 +64,6 @@ exports.createProduct = async (req, res) => {
 
   try {
     const user_id = req.user._id;
-    // console.log(user_id)
     const product = await Product.create({
       name,
       brand,

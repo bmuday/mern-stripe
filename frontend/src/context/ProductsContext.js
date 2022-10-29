@@ -13,7 +13,6 @@ export const productsReducer = (state, action) => {
         products: [action.payload, ...state.products],
       };
     case "DELETE_PRODUCT":
-      console.log(action);
       return {
         products: state.products.filter(
           (product) => product._id !== action.payload._id
@@ -29,7 +28,7 @@ export const ProductsContextProvider = ({ children }) => {
     products: [],
   });
   return (
-    <ProductsContext.Provider value={{ ...state, dispatch }}>
+    <ProductsContext.Provider value={{ ...state, dispatchProducts: dispatch }}>
       {children}
     </ProductsContext.Provider>
   );

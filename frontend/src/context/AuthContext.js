@@ -22,10 +22,8 @@ export const AuthContextProvider = ({ children }) => {
     const user = localStorage.getItem("user");
     dispatch({ type: "LOGIN/SIGNUP", payload: user });
   }, []);
-
-  console.log("auth context state", state);
   return (
-    <AuthContext.Provider value={{ ...state, dispatch }}>
+    <AuthContext.Provider value={{ ...state, dispatchAuth: dispatch }}>
       {children}
     </AuthContext.Provider>
   );
